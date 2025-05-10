@@ -83,7 +83,6 @@ public class Move implements Command {
     @PrePersist
     public void prePersist(){
         if(this.moveNumber == null){
-//            System.out.println("board.getMoves().length() = " + board.getMoves().size());
             Integer maxMoveNumber = board.getMoves().stream()
                     .map(Move::getMoveNumber)
                     .filter(Objects::nonNull)

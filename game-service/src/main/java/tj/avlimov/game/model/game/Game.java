@@ -2,15 +2,19 @@ package tj.avlimov.game.model.game;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 import tj.avlimov.game.logic.GameNameGenerator;
 import tj.avlimov.game.model.enums.Color;
+import tj.avlimov.game.model.enums.GamePrivacyType;
 import tj.avlimov.game.model.enums.GameStateType;
 import tj.avlimov.game.service.gameState.GameState;
 import tj.avlimov.game.model.player.Player;
 import tj.avlimov.game.service.gameState.GameStateFactory;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 
@@ -18,19 +22,23 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@Builder
 public class Game {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "gameIdGenerator")
+    @SequenceGenerator(name = "gameIdGenerator", sequenceName = "GameIdGenerator", allocationSize = 1)
     private Long id;
 
     private String gameCode;
 
     private String gameName;
 
+    @ManyToOne
+    @JoinColumn(name = "creator_id", referencedColumnName = "id")
+    private Player creator;
 
     @OneToOne(mappedBy = "game",cascade=CascadeType.ALL, orphanRemoval = true)
-//    @JoinColumn(name = "board_id", referencedColumnName = "id")
     private Board board;
 
     @ManyToOne
@@ -47,12 +55,15 @@ public class Game {
 
     @Enumerated(EnumType.STRING)
     private GameStateType currentStateType;
+
+    @Enumerated(EnumType.STRING)
+    private GamePrivacyType gamePrivacyType;
     @Transient
     private GameState currentState;
 
-//    @OneToMany(mappedBy="game", cascade = CascadeType.ALL, orphanRemoval = true)
-//    @OrderBy("moveNumber ASC")
-//    private List<Move> moves = new ArrayList<>();
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
 
     public Game(Player whitePlayer, Player blackPlayer){
         this.whitePlayer = whitePlayer;
@@ -78,12 +89,6 @@ public class Game {
         this.currentState = GameStateFactory.createGameState(currentStateType);
     }
 
-//    public Move getLastMove(){
-//        if(moves.size() <= 0){
-//            return null;
-//        }
-//        return moves.get(moves.size()-1);
-//    }
     public Color getCurrentPlayerColor(){
         if(currentPlayer == whitePlayer){
             return Color.WHITE;
@@ -95,6 +100,7 @@ public class Game {
     public void prePersist(){
         this.gameCode = UUID.randomUUID().toString();
         this.gameName = GameNameGenerator.generateGameName();
+        this.currentStateType = GameStateType.WAITING_FOR_PLAYER;
     }
 
     public void startGame(){

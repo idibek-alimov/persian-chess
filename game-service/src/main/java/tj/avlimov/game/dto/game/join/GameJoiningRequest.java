@@ -1,4 +1,4 @@
-package tj.avlimov.game.dto.game.create;
+package tj.avlimov.game.dto.game.join;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class GameCreateDTO {
+public class GameJoiningRequest {
     Long playerId;
+    String gameCode;
 }

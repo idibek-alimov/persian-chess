@@ -7,6 +7,8 @@ import tj.avlimov.game.model.game.Board;
 import tj.avlimov.game.model.game.Position;
 import tj.avlimov.game.model.enums.Color;
 import tj.avlimov.game.model.game.Move;
+import tj.avlimov.game.utils.BoardUtils;
+
 @Entity
 @AllArgsConstructor
 @DiscriminatorValue("PAWN")
